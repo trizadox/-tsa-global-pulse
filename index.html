@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSA Global Pulse — The State of the World in Open Data</title>
+<meta name="author" content="Dr T.S. Adeyelure">
+<meta name="description" content="Curated by Dr T.S. Adeyelure. Explore, sort and filter thousands of World Bank indicators for every country: population, health, economy, education, environment and technology. Live data, free to use.">
+<!-- Social sharing preview (edit the URL once you host it) -->
+<meta property="og:title" content="TSA Global Pulse — The State of the World in Open Data">
+<meta property="og:description" content="Curated by Dr T.S. Adeyelure. Live, filterable dashboard of population, health, economy, education and environment data for every country.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(11,11,11,.04);
+  --accent:#2a78d6; --good:#006300; --bad:#d03b3b;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6;
+  --seq:#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(255,255,255,.05);
+    --accent:#3987e5; --good:#0ca30c; --bad:#e66767;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(255,255,255,.05);
+  --accent:#3987e5; --good:#0ca30c; --bad:#e66767;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 20px 48px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:24px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--ink2);margin:2px 0 0}
+.curator{margin:6px 0 0;font-size:13px;color:var(--ink2)}
+.curator strong{color:var(--ink)}
+.hbtns{display:flex;gap:8px}
+button,.btn{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{background:var(--wash)}
+button.primary{background:var(--accent);color:#fff;border-color:transparent}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:16px}
+.controls{display:grid;grid-template-columns:2.2fr 1fr 1fr 1.4fr;gap:12px;align-items:end;margin-bottom:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2);font-weight:600}
+select,input[type=search],input[type=text]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:7px 10px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.yearrow{display:flex;gap:10px;align-items:center}
+.yearrow output{font-weight:700;font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right;color:var(--ink)}
+.searchbox{position:relative}
+.results{position:absolute;z-index:20;left:0;right:0;top:100%;margin-top:4px;max-height:320px;overflow:auto;background:var(--surface);border:1px solid var(--ring);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);display:none}
+.results div{padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--grid)}
+.results div:hover,.results div.on{background:var(--wash)}
+.results small{color:var(--muted);display:block}
+.indhead{margin:4px 0 14px}
+.indhead h2{font-size:18px;margin:0}
+.indhead p{margin:4px 0 0;color:var(--ink2);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.kpi .lab{font-size:12px;color:var(--ink2)}
+.kpi .val{font-size:24px;font-weight:700;margin-top:2px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kpi .det{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up{color:var(--good)} .down{color:var(--bad)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--grid);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{border:none;background:none;border-bottom:2px solid transparent;border-radius:0;padding:8px 12px;color:var(--ink2);font-weight:600}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.toolbar .grow{flex:1}
+.chk{display:flex;gap:6px;align-items:center;color:var(--ink2);font-size:13px;cursor:pointer}
+.plot{width:100%;height:520px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;border-bottom:1px solid var(--grid);text-align:left;white-space:nowrap}
+th{font-size:12px;color:var(--ink2);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+th.num,td.num{text-align:right}
+th .arr{color:var(--muted)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--wash)}
+tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.tblwrap{max-height:560px;overflow:auto;border:1px solid var(--grid);border-radius:8px}
+.bar{display:inline-block;height:8px;border-radius:0 4px 4px 0;background:var(--accent);vertical-align:middle;opacity:.8}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ring);border-radius:999px;padding:3px 8px 3px 6px;font-size:12px}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip b{cursor:pointer;color:var(--muted);font-weight:400}
+.status{padding:40px;text-align:center;color:var(--ink2)}
+.err{color:var(--bad)}
+.foot{margin-top:18px;color:var(--muted);font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.modal .card{width:min(520px,92vw)}
+.share a{display:inline-block;margin:6px 8px 0 0}
+.about p{max-width:78ch;color:var(--ink2)}
+.about h3{margin:18px 0 4px;font-size:15px}
+@media (max-width:900px){
+  .controls{grid-template-columns:1fr 1fr}
+  .controls .searchwide{grid-column:1/-1}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .plot{height:400px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🌍 TSA Global Pulse</h1>
+      <p class="sub">Live open data on every country — pick any indicator, then sort, filter and compare.</p>
+      <p class="curator">Curated by <strong>Dr T.S. Adeyelure</strong></p>
+    </div>
+    <div class="hbtns">
+      <button id="themeBtn" title="Toggle light/dark">◐ Theme</button>
+      <button id="shareBtn" class="primary">Share this view</button>
+    </div>
+  </header>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="controls">
+      <label class="f searchwide">Indicator — choose a featured one or search all ~1,500
+        <div style="display:flex;gap:8px">
+          <select id="indSel" style="flex:1"></select>
+        </div>
+        <div class="searchbox">
+          <input id="indSearch" type="search" placeholder="Search all indicators, e.g. “malaria”, “broadband”, “debt”…" autocomplete="off">
+          <div id="indResults" class="results"></div>
+        </div>
+      </label>
+      <label class="f">Region
+        <select id="regSel"><option value="">All regions</option></select>
+      </label>
+      <label class="f">Income group
+        <select id="incSel"><option value="">All income groups</option></select>
+      </label>
+      <label class="f">Year
+        <div class="yearrow"><input id="yearRng" type="range" min="1960" max="2025" value="2022"><output id="yearOut">2022</output></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="indhead">
+    <h2 id="indName">Loading…</h2>
+    <p id="indNote"></p>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button data-tab="map" class="on">Map</button>
+      <button data-tab="table">Ranking table</button>
+      <button data-tab="trends">Trends</button>
+      <button data-tab="compare">Compare two indicators</button>
+      <button data-tab="about">About the data</button>
+    </div>
+
+    <section class="view on" id="v-map">
+      <div class="toolbar">
+        <label class="chk"><input type="checkbox" id="logMap"> Log colour scale (for skewed data like population or GDP)</label>
+      </div>
+      <div id="mapPlot" class="plot"></div>
+    </section>
+
+    <section class="view" id="v-table">
+      <div class="toolbar">
+        <input id="tblSearch" type="search" placeholder="Filter countries…" style="max-width:260px">
+        <span class="grow"></span>
+        <span id="tblCount" style="color:var(--muted);font-size:12px"></span>
+        <button id="csvBtn">Download CSV</button>
+      </div>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:12px">Click a column to sort. Click a row to add that country to the Trends chart (up to 6).</p>
+      <div class="tblwrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="view" id="v-trends">
+      <div class="toolbar">
+        <div class="searchbox" style="width:260px">
+          <input id="ctySearch" type="search" placeholder="Add a country or region…" autocomplete="off">
+          <div id="ctyResults" class="results"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div id="trendPlot" class="plot"></div>
+    </section>
+
+    <section class="view" id="v-compare">
+      <div class="toolbar">
+        <label class="f" style="min-width:280px;flex:1">Vertical axis (Y) indicator
+          <select id="ySel"></select>
+        </label>
+        <label class="chk"><input type="checkbox" id="logX"> Log X</label>
+        <label class="chk"><input type="checkbox" id="logY"> Log Y</label>
+        <label class="chk"><input type="checkbox" id="bubble" checked> Size by population</label>
+      </div>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:12px">X axis = the main indicator above. Uses each country's value for the selected year (or the closest earlier year within 5 years). Region and income filters apply. Countries on the Trends chart are highlighted.</p>
+      <div id="scatterPlot" class="plot"></div>
+    </section>
+
+    <section class="view about" id="v-about">
+      <h3>Where the data comes from</h3>
+      <p>Every number on this page is fetched live, in your browser, from the <a href="https://data.worldbank.org/" target="_blank" rel="noopener">World Bank Open Data</a> Indicators API (World Development Indicators and related sources). Many health figures in it come from WHO, UN agencies and national statistics offices — the original source of each indicator is listed below.</p>
+      <div id="aboutInd"></div>
+      <h3>About this dashboard</h3>
+      <p>TSA Global Pulse is curated by Dr T.S. Adeyelure as a free, open resource for students, researchers, journalists and policymakers.</p>
+      <h3>Licence and citation</h3>
+      <p>World Bank Open Data is published under the Creative Commons Attribution 4.0 licence (CC BY 4.0). Cite it as: <em>World Bank, World Development Indicators</em>, plus the indicator name, code and date you accessed it.</p>
+      <h3>Reading the numbers carefully</h3>
+      <p>Most indicators are updated once a year, and the latest year is often incomplete because countries report at different times. The year slider starts on the most recent year that most countries have reported. Regional and income groups (e.g. “Sub-Saharan Africa”, “World”) are World Bank aggregates. They are left out of the map and ranking, but you can add them to the Trends chart.</p>
+    </section>
+  </div>
+
+  <p class="foot">Data: World Bank Open Data (CC BY 4.0), fetched live. <span id="lastUpd"></span> · Curated by Dr T.S. Adeyelure · Free and open to use.</p>
+</div>
+
+<div class="modal" id="shareModal">
+  <div class="card">
+    <h3 style="margin:0 0 8px">Share this view</h3>
+    <p style="margin:0 0 8px;color:var(--ink2);font-size:13px">This link opens the dashboard with the same indicator, year, filters, tab and countries.</p>
+    <input id="shareUrl" type="text" readonly>
+    <div class="share" id="shareLinks"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button id="copyBtn">Copy link</button>
+      <button id="closeShare" class="primary">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const API = "https://api.worldbank.org/v2";
+const FEATURED = {
+  "People": [["SP.POP.TOTL","Population, total"],["SP.POP.GROW","Population growth (annual %)"],["SP.URB.TOTL.IN.ZS","Urban population (% of total)"],["SP.DYN.TFRT.IN","Fertility rate (births per woman)"],["SP.POP.65UP.TO.ZS","Population aged 65+ (% of total)"]],
+  "Health": [["SP.DYN.LE00.IN","Life expectancy at birth (years)"],["SH.DYN.MORT","Under-5 mortality (per 1,000 live births)"],["SH.STA.MMRT","Maternal mortality (per 100,000 live births)"],["SH.IMM.MEAS","Measles immunisation (% of children 12–23 months)"],["SH.XPD.CHEX.GD.ZS","Health expenditure (% of GDP)"],["SH.H2O.BASW.ZS","Basic drinking water access (% of population)"]],
+  "Economy": [["NY.GDP.MKTP.CD","GDP (current US$)"],["NY.GDP.PCAP.CD","GDP per capita (current US$)"],["NY.GDP.MKTP.KD.ZG","GDP growth (annual %)"],["FP.CPI.TOTL.ZG","Inflation, consumer prices (annual %)"],["SL.UEM.TOTL.ZS","Unemployment (% of labour force)"],["SI.POV.DDAY","Extreme poverty headcount (% of population)"],["SI.POV.GINI","Gini index (inequality)"]],
+  "Education": [["SE.ADT.LITR.ZS","Adult literacy rate (%)"],["SE.PRM.ENRR","Primary school enrolment (% gross)"],["SE.TER.ENRR","Tertiary enrolment (% gross)"],["SE.XPD.TOTL.GD.ZS","Education expenditure (% of GDP)"]],
+  "Environment & energy": [["EN.GHG.CO2.PC.CE.AR5","CO₂ emissions per capita (t CO₂e)"],["EG.ELC.ACCS.ZS","Access to electricity (% of population)"],["EG.FEC.RNEW.ZS","Renewable energy (% of final consumption)"],["AG.LND.FRST.ZS","Forest area (% of land)"],["EN.ATM.PM25.MC.M3","PM2.5 air pollution (µg/m³)"]],
+  "Technology": [["IT.NET.USER.ZS","Internet users (% of population)"],["IT.CEL.SETS.P2","Mobile subscriptions (per 100 people)"]],
+  "Gender": [["SG.GEN.PARL.ZS","Women in national parliaments (%)"],["SL.TLF.CACT.FE.ZS","Female labour force participation (%)"]]
+};
+const DEFAULT_IND = "SP.DYN.LE00.IN", DEFAULT_Y = "NY.GDP.PCAP.CD";
+const SERIES = ["--s1","--s2","--s3","--s4","--s5","--s7"];
+
+const S = { ind: DEFAULT_IND, y2: DEFAULT_Y, year: null, region:"", income:"", tab:"map", sel:["ZAF","WLD"], sortKey:"value", sortDir:-1 };
+const META = {};          // iso3 -> {name, region, regionId, income, incomeId, agg}
+const DATA = {};          // code -> {byIso: {iso: {year: value}}, years:[min,max]}
+const INFO = {};          // code -> {name, note, org, source}
+let ALL_INDICATORS = null;
+const $ = id => document.getElementById(id);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- helpers ---------- */
+function store(k,v){ try{ localStorage.setItem(k, JSON.stringify({t:Date.now(), v})); }catch(e){} }
+function recall(k, maxAgeH){ try{ const o = JSON.parse(localStorage.getItem(k)); if(o && Date.now()-o.t < maxAgeH*3600e3) return o.v; }catch(e){} return null; }
+async function getJSON(url){
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+async function wbAll(path){ // handles pagination
+  const sep = path.includes("?") ? "&" : "?";
+  const first = await getJSON(`${API}${path}${sep}format=json&per_page=20000`);
+  if(!Array.isArray(first) || first.length < 2) { const msg = first?.[0]?.message?.[0]?.value; throw new Error(msg || "No data returned"); }
+  let rows = first[1] || [];
+  const pages = first[0].pages || 1;
+  for(let p=2;p<=pages;p++){
+    const nx = await getJSON(`${API}${path}${sep}format=json&per_page=20000&page=${p}`);
+    rows = rows.concat(nx[1]||[]);
+  }
+  return {meta:first[0], rows};
+}
+function isPct(name){ return /%|percent/i.test(name||""); }
+function fmt(v, name, compact=true){
+  if(v==null || isNaN(v)) return "—";
+  const a = Math.abs(v);
+  if(isPct(name)) return (a>=100? v.toFixed(0) : a>=10? v.toFixed(1) : v.toFixed(2)) + "%";
+  if(compact && a>=1e5) return new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:2}).format(v);
+  if(a>=1000) return new Intl.NumberFormat("en",{maximumFractionDigits:0}).format(v);
+  if(a>=10) return v.toFixed(1);
+  return v.toFixed(2);
+}
+function esc(s){ return String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function valAt(code, iso, year, back=0){
+  const d = DATA[code]?.byIso[iso]; if(!d) return null;
+  for(let y=year; y>=year-back; y--){ if(d[y]!=null) return {v:d[y], y}; }
+  return null;
+}
+
+/* ---------- loading ---------- */
+async function loadCountries(){
+  let rows = recall("sotw-countries", 24*7);
+  if(!rows){ rows = (await wbAll("/country")).rows; store("sotw-countries", rows); }
+  const regs = new Map(), incs = new Map();
+  rows.forEach(c=>{
+    const agg = c.region?.value === "Aggregates";
+    META[c.id] = {name:c.name, region:c.region?.value, regionId:c.region?.id, income:c.incomeLevel?.value, incomeId:c.incomeLevel?.id, agg};
+    if(!agg){ regs.set(c.region.id, c.region.value); if(c.incomeLevel?.id && c.incomeLevel.id!=="INX") incs.set(c.incomeLevel.id, c.incomeLevel.value); }
+  });
+  const order = ["HIC","UMC","LMC","LIC"];
+  [...regs].sort((a,b)=>a[1].localeCompare(b[1])).forEach(([id,v])=> $("regSel").add(new Option(v,id)));
+  [...incs].sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0])).forEach(([id,v])=> $("incSel").add(new Option(v,id)));
+}
+async function loadIndicator(code){
+  if(DATA[code]) return DATA[code];
+  let cached = recall("sotw-d-"+code, 12);
+  let rows;
+  if(cached){ rows = cached.rows; INFO[code] = INFO[code] || cached.info; }
+  else{
+    const [res, inf] = await Promise.all([ wbAll(`/country/all/indicator/${code}?date=1960:2030`), getJSON(`${API}/indicator/${code}?format=json`).catch(()=>null) ]);
+    rows = res.rows.filter(r=>r.value!=null).map(r=>[r.countryiso3code || r.country.id, +r.date, r.value]);
+    const i = inf?.[1]?.[0];
+    INFO[code] = { name: i?.name || code, note: i?.sourceNote || "", org: i?.sourceOrganization || "", source: i?.source?.value || "", updated: res.meta.lastupdated || "" };
+    store("sotw-d-"+code, {rows, info: INFO[code]});
+  }
+  const byIso = {}; let mn=9999, mx=0;
+  rows.forEach(([iso,y,v])=>{ if(!iso) return; (byIso[iso] ||= {})[y]=v; if(y<mn) mn=y; if(y>mx) mx=y; });
+  if(!rows.length) throw new Error("This indicator has no data.");
+  DATA[code] = {byIso, years:[mn,mx]};
+  return DATA[code];
+}
+async function loadAllIndicators(){
+  if(ALL_INDICATORS) return ALL_INDICATORS;
+  let rows = recall("sotw-allind", 24*7);
+  if(!rows){ rows = (await wbAll("/sources/2/indicators")).rows.map(i=>[i.id,i.name,i.sourceOrganization||""]); store("sotw-allind", rows); }
+  ALL_INDICATORS = rows; return rows;
+}
+
+/* ---------- derived ---------- */
+function countriesFiltered(){
+  return Object.entries(META).filter(([iso,m])=> !m.agg && (!S.region || m.regionId===S.region) && (!S.income || m.incomeId===S.income));
+}
+function bestYear(code){
+  const d = DATA[code]; const [mn,mx] = d.years; const counts = {};
+  Object.entries(d.byIso).forEach(([iso,ys])=>{ if(META[iso] && !META[iso].agg) Object.keys(ys).forEach(y=> counts[y]=(counts[y]||0)+1); });
+  const peak = Math.max(...Object.values(counts));
+  for(let y=mx;y>=mn;y--) if((counts[y]||0) >= peak*0.6) return y;
+  return mx;
+}
+function tableRows(){
+  const code=S.ind, name=INFO[code]?.name;
+  return countriesFiltered().map(([iso,m])=>{
+    const cur = valAt(code, iso, S.year, 0);
+    const past = valAt(code, iso, S.year-10, 0);
+    return {iso, name:m.name, region:m.region, income:m.income, value:cur?.v ?? null,
+      change: (cur && past) ? (isPct(name) ? cur.v - past.v : (past.v!==0 ? (cur.v-past.v)/Math.abs(past.v)*100 : null)) : null};
+  });
+}
+
+/* ---------- rendering ---------- */
+function plotLayout(extra={}){
+  return Object.assign({
+    paper_bgcolor:"rgba(0,0,0,0)", plot_bgcolor:"rgba(0,0,0,0)",
+    font:{family:"system-ui,-apple-system,Segoe UI,sans-serif", color:css("--ink2"), size:12},
+    margin:{l:60,r:20,t:10,b:50},
+    hoverlabel:{bgcolor:css("--surface"), bordercolor:css("--axis"), font:{color:css("--ink")}},
+    xaxis:{gridcolor:css("--grid"), linecolor:css("--axis"), zeroline:false},
+    yaxis:{gridcolor:css("--grid"), linecolor:css("--axis"), zeroline:false},
+  }, extra);
+}
+const CFG = {displaylogo:false, responsive:true, modeBarButtonsToRemove:["lasso2d","select2d"]};
+
+function renderHead(){
+  const i = INFO[S.ind]; $("indName").textContent = i.name;
+  const note = i.note.length>260 ? i.note.slice(0,260).replace(/\s\S*$/,"")+"…" : i.note;
+  $("indNote").textContent = `${note}${i.org? " Source: "+i.org.replace(/\.$/,"")+"." : ""} Code: ${S.ind}`;
+  $("aboutInd").innerHTML = `<p><strong>${esc(i.name)}</strong> (${esc(S.ind)})<br>${esc(i.note)}<br><em>Source organisation:</em> ${esc(i.org||"—")}<br><em>Database:</em> ${esc(i.source||"World Development Indicators")}</p>`;
+  $("lastUpd").textContent = i.updated ? `Indicator last updated by the World Bank: ${i.updated}.` : "";
+}
+function renderKPIs(){
+  const code=S.ind, name=INFO[code].name, rows = tableRows().filter(r=>r.value!=null);
+  const scopeLabel = (S.region && S.income) ? "Selection" : S.region ? $("regSel").selectedOptions[0].text : S.income ? $("incSel").selectedOptions[0].text : "World";
+  // Region and income ids are also World Bank aggregate codes (e.g. SSF, HIC); with both filters set there is no single aggregate
+  const aggIso = (S.region && S.income) ? null : (S.region || S.income || "WLD");
+  const agg = aggIso ? valAt(code, aggIso, S.year, 0) : null;
+  const aggPast = aggIso ? valAt(code, aggIso, S.year-10, 0) : null;
+  const sorted = [...rows].sort((a,b)=>b.value-a.value);
+  const total = countriesFiltered().length;
+  const median = rows.length ? (()=>{ const v=rows.map(r=>r.value).sort((a,b)=>a-b); const m=Math.floor(v.length/2); return v.length%2? v[m] : (v[m-1]+v[m])/2; })() : null;
+  let chg = "";
+  if(agg && aggPast){ const d = isPct(name) ? agg.v-aggPast.v : (agg.v-aggPast.v)/Math.abs(aggPast.v)*100;
+    chg = `<span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d).toFixed(1)}${isPct(name)?' pts':'%'}</span> vs ${S.year-10}`; }
+  const tiles = [
+    [`${scopeLabel} (${S.year})`, agg ? fmt(agg.v,name) : (median!=null? fmt(median,name):"—"), agg ? (chg||"aggregate") : "median of countries shown"],
+    ["Highest", sorted[0]? fmt(sorted[0].value,name):"—", sorted[0]?.name||""],
+    ["Lowest", sorted.at(-1)? fmt(sorted.at(-1).value,name):"—", sorted.at(-1)?.name||""],
+    ["Median country", median!=null? fmt(median,name):"—", `across ${rows.length} countries`],
+    ["Coverage", `${rows.length} / ${total}`, `countries with ${S.year} data`],
+  ];
+  $("kpis").innerHTML = tiles.map(([l,v,d])=>`<div class="card kpi"><div class="lab">${esc(l)}</div><div class="val" title="${esc(v)}">${esc(v)}</div><div class="det">${d}</div></div>`).join("");
+}
+function renderMap(){
+  const code=S.ind, name=INFO[code].name;
+  const rows = tableRows().filter(r=>r.value!=null);
+  const log = $("logMap").checked && rows.every(r=>r.value>0);
+  const seq = css("--seq").split(",").map(s=>s.trim());
+  const scale = seq.map((c,i)=>[i/(seq.length-1), c]);
+  const z = rows.map(r=> log? Math.log10(r.value) : r.value);
+  const tick = log ? (()=>{ const lo=Math.floor(Math.min(...z)), hi=Math.ceil(Math.max(...z)); const tv=[]; for(let i=lo;i<=hi;i++) tv.push(i); return {tickvals:tv, ticktext:tv.map(t=>fmt(10**t,name))}; })() : {};
+  Plotly.react("mapPlot", [{
+    type:"choropleth", locations:rows.map(r=>r.iso), z, text:rows.map(r=>`<b>${r.name}</b><br>${fmt(r.value,name,false)}<br><span style="font-size:11px">${S.year}</span>`),
+    hovertemplate:"%{text}<extra></extra>", colorscale:scale, marker:{line:{color:css("--surface"), width:0.5}},
+    colorbar:Object.assign({thickness:10, len:0.8, outlinewidth:0, tickfont:{color:css("--ink2")}}, tick)
+  }], plotLayout({margin:{l:0,r:0,t:0,b:0}, geo:{showframe:false, showcoastlines:false, projection:{type:"natural earth"}, bgcolor:"rgba(0,0,0,0)", showcountries:true, countrycolor:css("--surface"), landcolor:css("--grid"), showland:true, lakecolor:"rgba(0,0,0,0)"}}), CFG);
+  $("mapPlot").on?.("plotly_click", ev=>{ const iso=ev.points?.[0]?.location; if(iso) toggleSel(iso, true); });
+}
+function renderTable(){
+  const code=S.ind, name=INFO[code].name, q=$("tblSearch").value.trim().toLowerCase();
+  let rows = tableRows();
+  const withVal = rows.filter(r=>r.value!=null).sort((a,b)=>b.value-a.value);
+  const rank = {}; withVal.forEach((r,i)=> rank[r.iso]=i+1);
+  rows.forEach(r=> r.rank = rank[r.iso] ?? null);
+  if(q) rows = rows.filter(r=> r.name.toLowerCase().includes(q) || r.iso.toLowerCase()===q);
+  const k=S.sortKey, d=S.sortDir;
+  rows.sort((a,b)=>{ const x=a[k], y=b[k]; if(x==null && y==null) return a.name.localeCompare(b.name); if(x==null) return 1; if(y==null) return -1; return (typeof x==="string"? x.localeCompare(y) : x-y)*d; });
+  const max = Math.max(...withVal.map(r=>Math.abs(r.value)), 1);
+  const cols = [["rank","#",1],["name","Country",0],["region","Region",0],["income","Income group",0],["value",`Value (${S.year})`,1],["change", isPct(name)?`Change vs ${S.year-10} (pts)`:`Change vs ${S.year-10} (%)`,1]];
+  $("tbl").tHead.innerHTML = "<tr>"+cols.map(([key,lab,num])=>`<th data-k="${key}" class="${num?'num':''}">${esc(lab)} <span class="arr">${S.sortKey===key?(S.sortDir>0?'▲':'▼'):''}</span></th>`).join("")+"<th>Relative</th></tr>";
+  $("tbl").tBodies[0].innerHTML = rows.map(r=>`<tr data-iso="${r.iso}" class="${S.sel.includes(r.iso)?'sel':''}">
+    <td class="num">${r.rank??"—"}</td><td>${esc(r.name)}</td><td>${esc(r.region)}</td><td>${esc(r.income)}</td>
+    <td class="num">${fmt(r.value,name,false)}</td>
+    <td class="num ${r.change==null?'':r.change>=0?'up':'down'}">${r.change==null?'—':(r.change>=0?'+':'')+r.change.toFixed(1)}</td>
+    <td>${r.value!=null && r.value>0 ? `<span class="bar" style="width:${Math.max(2,Math.round(Math.abs(r.value)/max*120))}px"></span>`:''}</td></tr>`).join("");
+  $("tblCount").textContent = `${rows.length} countries · ${withVal.length} with data`;
+  window.__rows = rows;
+}
+function renderChips(){
+  $("chips").innerHTML = S.sel.map((iso,i)=>`<span class="chip"><i style="background:${css(SERIES[i%SERIES.length])}"></i>${esc(META[iso]?.name||iso)}<b data-rm="${iso}" title="Remove">✕</b></span>`).join("");
+}
+function renderTrends(){
+  renderChips();
+  const code=S.ind, name=INFO[code].name;
+  const traces = S.sel.map((iso,i)=>{
+    const d = DATA[code].byIso[iso] || {}; const ys = Object.keys(d).map(Number).sort((a,b)=>a-b);
+    const c = css(SERIES[i%SERIES.length]);
+    return {x:ys, y:ys.map(y=>d[y]), name:META[iso]?.name||iso, mode:"lines", line:{width:2, color:c},
+      hovertemplate:`<b>${esc(META[iso]?.name||iso)}</b> %{x}: %{customdata}<extra></extra>`, customdata:ys.map(y=>fmt(d[y],name,false))};
+  });
+  const lay = plotLayout({showlegend:true, legend:{orientation:"h", y:1.08, x:0}, hovermode:"x unified",
+    shapes:[{type:"line", x0:S.year, x1:S.year, yref:"paper", y0:0, y1:1, line:{color:css("--axis"), width:1, dash:"dot"}}]});
+  lay.yaxis.title = {text: name.length>60? name.slice(0,58)+"…" : name, font:{size:11}};
+  lay.margin.t = 30;
+  Plotly.react("trendPlot", traces, lay, CFG);
+}
+async function renderCompare(){
+  const xc=S.ind, yc=S.y2;
+  try{ await loadIndicator(yc); if(!DATA["SP.POP.TOTL"]) await loadIndicator("SP.POP.TOTL"); }
+  catch(e){ $("scatterPlot").innerHTML = `<div class="status err">Couldn't load the Y indicator: ${esc(e.message)}</div>`; return; }
+  const xn=INFO[xc].name, yn=INFO[yc].name;
+  const pts = countriesFiltered().map(([iso,m])=>{ const x=valAt(xc,iso,S.year,5), y=valAt(yc,iso,S.year,5), p=valAt("SP.POP.TOTL",iso,S.year,5); return (x&&y)?{iso, name:m.name, region:m.region, x:x.v, y:y.v, xy:x.y, yy:y.y, pop:p?.v||0}:null; }).filter(Boolean);
+  const logX=$("logX").checked && pts.every(p=>p.x>0), logY=$("logY").checked && pts.every(p=>p.y>0);
+  const big = $("bubble").checked; const maxPop = Math.max(...pts.map(p=>p.pop),1);
+  const size = p => big ? 6 + 34*Math.sqrt(p.pop/maxPop) : 9;
+  const base = {x:pts.map(p=>p.x), y:pts.map(p=>p.y), mode:"markers", type:"scatter", name:"Countries",
+    marker:{size:pts.map(size), color:css("--s1"), opacity:.55, line:{color:css("--surface"), width:1.5}},
+    text:pts.map(p=>`<b>${esc(p.name)}</b><br>${esc(p.region)}<br>X: ${fmt(p.x,xn,false)} (${p.xy})<br>Y: ${fmt(p.y,yn,false)} (${p.yy})`), hovertemplate:"%{text}<extra></extra>", customdata:pts.map(p=>p.iso)};
+  const hi = pts.filter(p=>S.sel.includes(p.iso));
+  const hiT = {x:hi.map(p=>p.x), y:hi.map(p=>p.y), mode:"markers+text", type:"scatter", name:"On Trends chart", text:hi.map(p=>p.name), textposition:"top center", textfont:{color:css("--ink"), size:11},
+    marker:{size:hi.map(size), color:css("--s2"), opacity:.95, line:{color:css("--surface"), width:2}}, hoverinfo:"skip"};
+  const lay = plotLayout({showlegend:true, legend:{orientation:"h", y:1.08, x:0}});
+  lay.margin.t=30;
+  lay.xaxis.title = {text:xn, font:{size:11}}; lay.yaxis.title = {text:yn, font:{size:11}};
+  if(logX) lay.xaxis.type="log"; if(logY) lay.yaxis.type="log";
+  Plotly.react("scatterPlot", [base, hiT], lay, CFG);
+  $("scatterPlot").removeAllListeners?.("plotly_click");
+  $("scatterPlot").on?.("plotly_click", ev=>{ const iso = ev.points?.[0]?.customdata; if(iso) toggleSel(iso, true); });
+}
+function renderView(){
+  if(S.tab==="map") renderMap();
+  else if(S.tab==="table") renderTable();
+  else if(S.tab==="trends") renderTrends();
+  else if(S.tab==="compare") renderCompare();
+}
+function renderAll(){ renderHead(); renderKPIs(); renderView(); writeURL(); }
+
+/* ---------- interactions ---------- */
+function toggleSel(iso, add){
+  const i = S.sel.indexOf(iso);
+  if(i>=0 && !add) S.sel.splice(i,1);
+  else if(i<0){ S.sel.push(iso); if(S.sel.length>6) S.sel.shift(); }
+  if(S.tab==="table") renderTable(); else renderView();
+  writeURL();
+}
+async function setIndicator(code, keepYear=false){
+  $("indName").textContent = "Loading…"; $("indNote").textContent = "";
+  try{
+    const prev = S.ind; S.ind = code;
+    const d = await loadIndicator(code);
+    if(![...$("indSel").options].some(o=>o.value===code)){ const og = $("indSel").querySelector('optgroup[label="Searched"]') || $("indSel").appendChild(Object.assign(document.createElement("optgroup"),{label:"Searched"})); og.appendChild(new Option(INFO[code].name, code)); }
+    $("indSel").value = code;
+    $("yearRng").min = d.years[0]; $("yearRng").max = d.years[1];
+    if(!keepYear || S.year==null || S.year<d.years[0] || S.year>d.years[1]) S.year = bestYear(code);
+    $("yearRng").value = S.year; $("yearOut").textContent = S.year;
+    renderAll();
+  }catch(e){
+    $("indName").innerHTML = `<span class="err">Couldn't load ${esc(code)}: ${esc(e.message)}</span>`;
+    if(S.ind!==DEFAULT_IND && code!==DEFAULT_IND){ S.ind = DEFAULT_IND; }
+  }
+}
+function fillIndicatorSelects(){
+  for(const sel of [$("indSel"), $("ySel")]){
+    for(const [grp, items] of Object.entries(FEATURED)){
+      const og = document.createElement("optgroup"); og.label = grp;
+      items.forEach(([c,n])=> og.appendChild(new Option(n,c))); sel.appendChild(og);
+    }
+  }
+}
+function setupSearch(input, box, source, onPick){
+  let items=[], idx=-1;
+  const draw = ()=>{ box.innerHTML = items.map((it,i)=>`<div data-i="${i}" class="${i===idx?'on':''}">${esc(it.label)}${it.sub?`<small>${esc(it.sub)}</small>`:''}</div>`).join("") || `<div style="color:var(--muted)">No matches</div>`; box.style.display="block"; };
+  input.addEventListener("input", async ()=>{
+    const q = input.value.trim().toLowerCase(); if(q.length<2){ box.style.display="none"; return; }
+    box.innerHTML = `<div style="color:var(--muted)">Searching…</div>`; box.style.display="block";
+    try{ items = (await source(q)).slice(0,40); idx=-1; draw(); }catch(e){ box.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  });
+  input.addEventListener("keydown", e=>{
+    if(box.style.display!=="block") return;
+    if(e.key==="ArrowDown"){ idx=Math.min(idx+1, items.length-1); draw(); e.preventDefault(); }
+    else if(e.key==="ArrowUp"){ idx=Math.max(idx-1,0); draw(); e.preventDefault(); }
+    else if(e.key==="Enter" && items[Math.max(idx,0)]){ onPick(items[Math.max(idx,0)]); box.style.display="none"; input.value=""; }
+    else if(e.key==="Escape"){ box.style.display="none"; }
+  });
+  box.addEventListener("mousedown", e=>{ const d=e.target.closest("[data-i]"); if(!d) return; e.preventDefault(); onPick(items[+d.dataset.i]); box.style.display="none"; input.value=""; });
+  input.addEventListener("blur", ()=> setTimeout(()=> box.style.display="none", 150));
+}
+
+function readURL(){
+  const p = new URLSearchParams(location.search);
+  if(p.get("ind")) S.ind = p.get("ind");
+  if(p.get("y2")) S.y2 = p.get("y2");
+  if(p.get("year")) S.year = +p.get("year");
+  if(p.get("region")) S.region = p.get("region");
+  if(p.get("income")) S.income = p.get("income");
+  if(p.get("tab")) S.tab = p.get("tab");
+  if(p.get("c")) S.sel = p.get("c").split(",").filter(Boolean).slice(0,6);
+}
+function shareURL(){
+  const p = new URLSearchParams({ind:S.ind, year:S.year, tab:S.tab});
+  if(S.region) p.set("region",S.region); if(S.income) p.set("income",S.income);
+  if(S.sel.length) p.set("c", S.sel.join(",")); if(S.tab==="compare") p.set("y2", S.y2);
+  return location.origin + location.pathname + "?" + p.toString();
+}
+function writeURL(){ try{ if(location.protocol.startsWith("http")) history.replaceState(null,"",shareURL()); }catch(e){} }
+function setTab(t){
+  S.tab = t;
+  document.querySelectorAll(".tabs button").forEach(b=> b.classList.toggle("on", b.dataset.tab===t));
+  document.querySelectorAll(".view").forEach(v=> v.classList.toggle("on", v.id==="v-"+t));
+  if(t==="compare") $("ySel").value = S.y2;
+  renderView(); writeURL();
+  setTimeout(()=>{ ["mapPlot","trendPlot","scatterPlot"].forEach(id=>{ try{ Plotly.Plots.resize(id); }catch(e){} }); }, 30);
+}
+
+function wire(){
+  $("indSel").addEventListener("change", e=> setIndicator(e.target.value, true));
+  $("ySel").addEventListener("change", e=>{ S.y2 = e.target.value; renderCompare(); writeURL(); });
+  $("regSel").addEventListener("change", e=>{ S.region=e.target.value; renderKPIs(); renderView(); writeURL(); });
+  $("incSel").addEventListener("change", e=>{ S.income=e.target.value; renderKPIs(); renderView(); writeURL(); });
+  let t; $("yearRng").addEventListener("input", e=>{ S.year=+e.target.value; $("yearOut").textContent=S.year; clearTimeout(t); t=setTimeout(()=>{ renderKPIs(); renderView(); writeURL(); }, 120); });
+  document.querySelectorAll(".tabs button").forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
+  ["logMap"].forEach(id=> $(id).addEventListener("change", renderMap));
+  ["logX","logY","bubble"].forEach(id=> $(id).addEventListener("change", renderCompare));
+  $("tblSearch").addEventListener("input", renderTable);
+  $("tbl").tHead.addEventListener("click", e=>{ const th=e.target.closest("th[data-k]"); if(!th) return; const k=th.dataset.k; if(S.sortKey===k) S.sortDir*=-1; else { S.sortKey=k; S.sortDir = (k==="name"||k==="region"||k==="income"||k==="rank")?1:-1; } renderTable(); });
+  $("tbl").tBodies[0].addEventListener("click", e=>{ const tr=e.target.closest("tr[data-iso]"); if(tr) toggleSel(tr.dataset.iso); });
+  $("chips").addEventListener("click", e=>{ const b=e.target.closest("[data-rm]"); if(b) toggleSel(b.dataset.rm); });
+  $("csvBtn").addEventListener("click", ()=>{
+    const name = INFO[S.ind].name; const rows = window.__rows || [];
+    const lines = [["rank","iso3","country","region","income_group","year","indicator_code","indicator_name","value","change_vs_10y"].join(",")]
+      .concat(rows.map(r=>[r.rank??"", r.iso, `"${r.name.replace(/"/g,'""')}"`, `"${(r.region||"").replace(/"/g,'""')}"`, `"${(r.income||"").replace(/"/g,'""')}"`, S.year, S.ind, `"${name.replace(/"/g,'""')}"`, r.value??"", r.change==null?"":r.change.toFixed(3)].join(",")));
+    lines.push(""); lines.push(`"Source: World Bank Open Data (CC BY 4.0), accessed ${new Date().toISOString().slice(0,10)}"`);
+    const blob = new Blob([lines.join("\n")], {type:"text/csv"}); const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `${S.ind}_${S.year}.csv`; document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("themeBtn").addEventListener("click", ()=>{
+    const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+    document.documentElement.dataset.theme = cur==="dark"?"light":"dark";
+    try{ localStorage.setItem("sotw-theme", document.documentElement.dataset.theme); }catch(e){}
+    renderView();
+  });
+  $("shareBtn").addEventListener("click", ()=>{
+    const url = shareURL(), txt = `TSA Global Pulse: ${INFO[S.ind]?.name} (${S.year}) — curated by Dr T.S. Adeyelure`;
+    $("shareUrl").value = url;
+    const u = encodeURIComponent(url), tx = encodeURIComponent(txt);
+    $("shareLinks").innerHTML = `<a target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?url=${u}&text=${tx}">X / Twitter</a><a target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=${u}">LinkedIn</a><a target="_blank" rel="noopener" href="https://wa.me/?text=${tx}%20${u}">WhatsApp</a><a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${u}">Facebook</a>`;
+    $("shareModal").classList.add("on");
+  });
+  $("copyBtn").addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText($("shareUrl").value); $("copyBtn").textContent="Copied ✓"; }catch(e){ $("shareUrl").select(); $("copyBtn").textContent="Press Ctrl+C"; } setTimeout(()=> $("copyBtn").textContent="Copy link", 1800); });
+  $("closeShare").addEventListener("click", ()=> $("shareModal").classList.remove("on"));
+  $("shareModal").addEventListener("click", e=>{ if(e.target.id==="shareModal") $("shareModal").classList.remove("on"); });
+
+  setupSearch($("indSearch"), $("indResults"), async q=>{
+    const all = await loadAllIndicators(); const words = q.split(/\s+/);
+    return all.filter(([id,n])=> words.every(w=> n.toLowerCase().includes(w) || id.toLowerCase().includes(w))).map(([id,n,org])=>({id, label:n, sub:`${id}${org? " · "+org.slice(0,80):""}`}));
+  }, it=> setIndicator(it.id, true));
+  setupSearch($("ctySearch"), $("ctyResults"), async q=> Object.entries(META).filter(([iso,m])=> m.name.toLowerCase().includes(q) || iso.toLowerCase()===q).map(([iso,m])=>({id:iso, label:m.name, sub: m.agg? "Region / group" : m.region})), it=>{ toggleSel(it.id, true); });
+}
+
+/* ---------- boot ---------- */
+(async function(){
+  try{ const th = localStorage.getItem("sotw-theme"); if(th) document.documentElement.dataset.theme = th; }catch(e){}
+  readURL(); fillIndicatorSelects(); wire();
+  if(typeof Plotly === "undefined"){ $("indName").innerHTML = '<span class="err">The chart library could not load. Check your internet connection.</span>'; return; }
+  try{ await loadCountries(); }
+  catch(e){ $("indName").innerHTML = `<span class="err">Couldn't reach the World Bank API (${esc(e.message)}). Check your connection and reload.</span>`; return; }
+  $("regSel").value = S.region; $("incSel").value = S.income;
+  const tab = S.tab; await setIndicator(S.ind, S.year!=null);
+  if(tab!=="map") setTab(tab);
+})();
+</script>
+</body>
+</html>
